@@ -1,22 +1,40 @@
 import unittest
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
 
 
 login = ""
 pwd = ""
 
 class MainTests(unittest.TestCase):
+    def setUp(self):
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        self.driver = webdriver.Chrome(options=options)
+        self.driver.implicitly_wait(10)
+        self.driver.maximize_window()
+        self.driver.get('https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn')
+
     def test_login(self):
-        driver = webdriver.Chrome()
-        driver.maximize_window()
-        driver.get('https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn')
-        driver.find_element_by_id('Login').send_keys(login)
-        driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
-        driver.find_element_by_xpath('//*[@id="Password"]').send_keys(pwd)
-        driver.execute_script('submitLogin()')
-        self.assertEqual(driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/', 'Login Fail:')
-        driver.quit()
+        self.driver.find_element_by_id('Login').send_keys(login)
+        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
+        self.driver.find_element_by_xpath('//*[@id="Password"]').send_keys(pwd)
+        self.driver.execute_script('submitLogin()')
+        self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/', 'Login Fail:')
+
+    def test_pass_fail(self):
+        self.driver.find_element_by_id('Login').send_keys(login)
+        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
+        self.driver.execute_script('submitLogin()')
+        self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn', 'Login Fail:')
+
+    def test_login_fail(self):
+        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
+        self.driver.find_element_by_xpath('//*[@id="Password"]').send_keys(pwd)
+        self.driver.execute_script('submitLogin()')
+        self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn', 'Login Fail:')
+
+    def tearDown(self):
+        self.driver.quit()
 
 
 if __name__ == '__main__':
