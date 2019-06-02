@@ -1,8 +1,9 @@
 import unittest
 from selenium import webdriver
+from POM import Login
 
 
-login = ""
+user = ""
 pwd = ""
 
 class MainTests(unittest.TestCase):
@@ -12,25 +13,31 @@ class MainTests(unittest.TestCase):
         self.driver = webdriver.Chrome(options=options)
         self.driver.implicitly_wait(10)
         self.driver.maximize_window()
-        self.driver.get('https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn')
+        self.base_url = 'https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn'
 
     def test_login(self):
-        self.driver.find_element_by_id('Login').send_keys(login)
-        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
-        self.driver.find_element_by_xpath('//*[@id="Password"]').send_keys(pwd)
-        self.driver.execute_script('submitLogin()')
+        driver = self.driver
+        driver.get(self.base_url)
+        login = Login(driver)
+        login.UserName(user)
+        login.Password(pwd)
+        login.SingIn()
         self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/', 'Login Fail:')
 
     def test_pass_fail(self):
-        self.driver.find_element_by_id('Login').send_keys(login)
-        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
-        self.driver.execute_script('submitLogin()')
+        driver = self.driver
+        driver.get(self.base_url)
+        login = Login(self.driver)
+        login.UserName(user)
+        login.Password("wrong")
         self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn', 'Login Fail:')
 
     def test_login_fail(self):
-        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
-        self.driver.find_element_by_xpath('//*[@id="Password"]').send_keys(pwd)
-        self.driver.execute_script('submitLogin()')
+        driver = self.driver
+        driver.get(self.base_url)
+        login = Login(self.driver)
+        login.UserName("wrong")
+        login.Password(pwd)
         self.assertEqual(self.driver.current_url, 'https://portalpacjenta.luxmed.pl/PatientPortal/Account/LogOn', 'Login Fail:')
 
     def tearDown(self):
