@@ -1,0 +1,14 @@
+class Login(object):
+
+    def __init__(self, driver):
+        self.driver = driver
+
+    def UserName(self, user_name):
+        self.driver.find_element_by_id('Login').send_keys(user_name)
+
+    def Password(self, password):
+        self.driver.find_element_by_xpath('//*[@id="TempPassword"]').click()
+        self.driver.find_element_by_xpath('//*[@id="Password"]').send_keys(password)
+
+    def SingIn(self):
+        self.driver.execute_script('submitLogin()')
